@@ -1,0 +1,31 @@
+# HW2 Service
+
+## Compile
+
+Run `make` in this directory.
+
+## Broker
+
+The broker provides RPC methods for publishing and retieving events.
+
+Before running the broker, make sure the rpcbind service is running.
+
+```
+./broker
+```
+
+## Publisher
+
+The publisher publishes events to the broker. An event is a tuple of (topic_name, int_value).
+
+```
+./publisher broker_host_name topic_name topic_value
+```
+
+## Retriever
+
+The Retriever fetches events from the broker for a provided topic name.
+
+```
+./receiver broker_host_name topic_name
+```
