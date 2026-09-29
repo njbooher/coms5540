@@ -24,14 +24,14 @@ main (int argc, char *argv[])
 	host = argv[1];
 
     if (argv[2][0] == '\0') {
-        fprintf (stderr, "but... why?\n");
+        fprintf (stderr, "invalid topic_name\n");
         exit (1);
     }
     
     publish_1_arg.topic = argv[2];
 
     if (argv[3][0] == '\0') {
-        fprintf (stderr, "but... why?\n");
+        fprintf (stderr, "invalid int_value\n");
         exit (1);
     }
     else if (argv[3][0] == '0' && argv[3][1] == '\0') {

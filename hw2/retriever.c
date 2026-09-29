@@ -37,9 +37,14 @@ main (int argc, char *argv[])
         exit (1);
     }
 
-    for (int i = 0; i < result->ds_values_list_len; i++) {
-        fprintf (stdout, "%d\n", result->ds_values_list_val[i]);
+    if (result->ds_values_list_len == 0) {
+        fprintf (stdout, "No events found for topic '%s'.\n", retrieve_1_arg);
+    } else {
+        for (int i = 0; i < result->ds_values_list_len; i++) {
+            fprintf (stdout, "%d\n", result->ds_values_list_val[i]);
+        }
     }
+
 
 #ifndef	DEBUG
     clnt_destroy (clnt);

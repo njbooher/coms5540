@@ -6,8 +6,8 @@ struct ds_event_struct {
 };
 
 enum ds_publish_status {
-    kSuccess,
-    kError
+    kError,
+    kSuccess
 };
 
 typedef struct ds_event_struct ds_event_t;
