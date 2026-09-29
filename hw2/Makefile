@@ -16,9 +16,10 @@ TARGETS_BROKER.c = dataspace_svc.c broker.c dataspace_xdr.c
 TARGETS_PUBLISHER.c = dataspace_clnt.c publisher.c dataspace_xdr.c 
 TARGETS_RETRIEVER.c = dataspace_clnt.c retriever.c dataspace_xdr.c
 TARGETS_GENERATED = dataspace.h dataspace_xdr.c dataspace_clnt.c dataspace_svc.c
-TARGETS = $(TARGETS_GENERATED) publisher.c retriever.c broker.c
+TARGETS_UNGENERATED = publisher.c retriever.c broker.c
+TARGETS = $(TARGETS_GENERATED) $(TARGETS_UNGENERATED)
 
-BUNDLE = $(SOURCES.x) $(TARGETS) README Makefile khash.h kvec.h
+BUNDLE = $(SOURCES.x) $(TARGETS_UNGENERATED) README Makefile khash.h kvec.h
 
 OBJECTS_BROKER = $(SOURCES_BROKER.c:%.c=%.o) $(TARGETS_BROKER.c:%.c=%.o)
 OBJECTS_PUBLISHER = $(SOURCES_PUBLISHER.c:%.c=%.o) $(TARGETS_PUBLISHER.c:%.c=%.o)
