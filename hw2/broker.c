@@ -31,6 +31,8 @@ publish_1_svc(ds_event_t *argp, struct svc_req *rqstp)
 
     init_service();
 
+	result = kError;
+
     if (argp->topic[0] == '\0') {
         fprintf (stderr, "received a request for a null topic... somehow\n");
         return &result;
