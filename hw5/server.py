@@ -137,13 +137,10 @@ class CausalServer:
                 "type": "READ",
                 "context": [c0, c1, c2]
             }
-
-        TODO:
-        * wait until vector_clock >= client context
-        * return current data and a COPY of vector_clock
         """
-
-        raise NotImplementedError
+        with self.condition:
+            self.condition.wait_for(lambda: clock_ge(self.vector_clock, message['context']))
+            return {'status': 'OK', 'value': self.data, 'timestamp': self.vector_clock.copy()}
 
 
     def handle_write(self, message):
