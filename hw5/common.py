@@ -16,7 +16,7 @@ import json
 import socket
 
 HOST = "127.0.0.1"
-
+NUM_REPLICAS = 3
 
 def send_message(host, port, message, timeout=None):
     """Send one JSON request and return one JSON response."""

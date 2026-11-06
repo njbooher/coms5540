@@ -9,7 +9,7 @@ The destination port is requested separately for each operation.
 With arbitrary server ports, a port is accepted only after a server
 responds to a HELLO request with a valid replica identity.
 """
-from common import HOST, send_message
+from common import HOST, NUM_REPLICAS, send_message
 
 context = [0, 0, 0]
 
@@ -54,7 +54,7 @@ def prompt_port():
             if (
                 response.get("status") == "OK"
                 and type(response.get("replica_id")) is int
-                and response["replica_id"] in (0, 1, 2)
+                and response["replica_id"] in range(NUM_REPLICAS)
             ):
                 return port
         except (ValueError, OSError, TimeoutError, EOFError):
