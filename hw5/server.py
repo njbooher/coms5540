@@ -76,11 +76,13 @@ class CausalServer:
         # above and to wait/notify when the vector clock changes.
         self.condition = threading.Condition()
 
-    def send_to_peer(self, peer_id, update):
-        """Send an UPDATE to a peer; receipt acknowledgement is not delivery."""
-        if peer_id == self.replica_id or peer_id not in (0, 1, 2):
-            raise ValueError("Invalid peer ID")
-        return send_message(HOST, self.ports[peer_id], update)
+    def broadcast_write(self, update):
+        """Send an UPDATE to all peers; receipt acknowledgement is not delivery."""
+        update['origin'] = self.replica_id
+        for peer_id in range(NUM_REPLICAS):
+            if peer_id == self.replica_id:
+                continue
+            send_message(HOST, self.ports[peer_id], update)
 
     # ----------------------------------------------------------------------
     # Vector-clock / causal-consistency functions
@@ -151,21 +153,26 @@ class CausalServer:
                 "value": "A",
                 "context": [c0, c1, c2]
             }
+        """
 
-        TODO:
-        1. Wait until local vector_clock >= client context.
-        2. Append value to local data.
-        3. Increment self.vector_clock[self.replica_id].
-        4. Make a COPY of the resulting timestamp.
-        5. Construct an UPDATE message.
-        6. Release the condition lock before network communication.
-        7. Propagate the UPDATE to both peer replicas.
-        8. Return the local value and timestamp to the client.
+        update_message = {
+            'type': 'UPDATE',
+        }
 
+        with self.condition:
+            self.condition.wait_for(lambda: clock_ge(self.vector_clock, message['context']))
+            self.data += message['value']
+            update_message['value'] = message['value']
+            self.vector_clock[self.replica_id] += 1
+            update_message['timestamp'] = self.vector_clock.copy()
+
+        """
         The originating replica does not need to wait for a peer UPDATE to
         become causally applicable. The peer acknowledges receipt/buffering.
         """
-        raise NotImplementedError
+        self.broadcast_write(update_message)
+
+        return {'status': 'OK', 'value': update_message['value'], 'timestamp': update_message['timestamp']}
 
 
     def handle_update(self, message):
