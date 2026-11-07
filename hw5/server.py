@@ -36,8 +36,6 @@ from common import (
 def clock_ge(clock_a, clock_b):
     """
     Return True iff clock_a >= clock_b component-wise.
-
-    TODO: implement.
     """
     if len(clock_a) != len(clock_b):
         raise ValueError("clock_ge was provided invalid clocks")
