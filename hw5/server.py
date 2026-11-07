@@ -93,25 +93,28 @@ class CausalServer:
         causally ready at this replica.
 
         This function is called while 'condition' is held.
-
-        TODO: implement the causal-delivery test from the assignment.
         """
-        raise NotImplementedError
 
+        if self.vector_clock[origin] != (timestamp[origin] - 1):
+            return False
+
+        for i in range(NUM_REPLICAS):
+            if i == origin:
+                continue
+            if timestamp[i] > self.vector_clock[i]:
+                return False
+        
+        return True
 
     def apply_update(self, update):
         """
         Apply an UPDATE that is already known to be causally ready.
 
         This function is called while 'condition' is held.
-
-        TODO:
-        1. Append update["value"] to data.
-        2. Update the appropriate vector-clock component.
-        3. Do NOT create another UPDATE; this write originated elsewhere.
         """
-        raise NotImplementedError
 
+        self.data += update['value']
+        self.vector_clock[update['origin']] = update['timestamp'][update['origin']]
 
     def check_pending_updates(self):
         """
@@ -119,11 +122,15 @@ class CausalServer:
         causally ready. Continue until no additional update can be applied.
 
         This function is called while 'condition' is held.
-
-        TODO: implement.
         """
-        raise NotImplementedError
 
+        applied_update = True
+        while applied_update:
+            applied_update = False
+            for update in self.pending_updates:
+                if self.can_apply_update(update):
+                    self.apply_update(update)
+                    applied_update = True
 
     # ----------------------------------------------------------------------
     # Request handlers
@@ -182,17 +189,25 @@ class CausalServer:
                 "timestamp": [t0, t1, t2],
                 "origin": 0
             }
+        """
 
-        TODO:
-        * if causally ready, apply the UPDATE and then recheck pending updates
-        * otherwise, put the UPDATE in pending_updates
-        * notify waiting READ/WRITE threads if vector_clock advanced
+        with self.condition:
+            
+            if self.can_apply_update(message['timestamp'], message['origin']):
+                self.apply_update(message)
+            else:
+                self.pending_updates.append(message)
+        
+            self.check_pending_updates()
+            self.condition.notify_all()
 
+        """
         Return an acknowledgement after the UPDATE has been received and either
         applied or safely buffered. The acknowledgement does NOT mean that a
         buffered update has already been applied.
         """
-        raise NotImplementedError
+
+        return {'status': 'OK', 'value': message['value'], 'timestamp': message['timestamp']}
 
 
     def handle_request(self, message):
