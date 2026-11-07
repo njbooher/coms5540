@@ -59,7 +59,7 @@ class CausalServer:
         # ----------------------------------------------------------------------
 
         self.data = ""
-        self.vector_clock = [0, 0, 0]
+        self.vector_clock = [0 for i in range(NUM_REPLICAS)]
 
         # Each entry should contain:
         # {
