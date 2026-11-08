@@ -24,6 +24,7 @@ import socket
 import sys
 import threading
 import argparse
+import time
 
 from common import (
     HOST,
@@ -115,6 +116,7 @@ class CausalServer:
 
         self.data += update['value']
         self.vector_clock[update['origin']] = update['timestamp'][update['origin']]
+        self.condition.notify_all()
 
     def check_pending_updates(self):
         """
@@ -131,6 +133,12 @@ class CausalServer:
                 if self.can_apply_update(update):
                     self.apply_update(update)
                     applied_update = True
+
+    def background_check_pending_updates(self):
+        while True:
+            time.sleep(5)
+            with self.condition:
+                self.check_pending_updates()
 
     # ----------------------------------------------------------------------
     # Request handlers
@@ -192,14 +200,7 @@ class CausalServer:
         """
 
         with self.condition:
-            
-            if self.can_apply_update(message['timestamp'], message['origin']):
-                self.apply_update(message)
-            else:
-                self.pending_updates.append(message)
-        
-            self.check_pending_updates()
-            self.condition.notify_all()
+            self.pending_updates.append(message)
 
         """
         Return an acknowledgement after the UPDATE has been received and either
@@ -280,6 +281,13 @@ class CausalServer:
             print(f"Listening on {HOST}:{self.my_port}")
             print(f'Data: "{self.data}"')
             print(f"Clock: {self.vector_clock}")
+
+            updates_thread = threading.Thread(
+                    target=self.background_check_pending_updates,
+                    args=(),
+                    daemon=True,
+                )
+            updates_thread.start()
 
             while True:
                 conn, addr = server_sock.accept()
