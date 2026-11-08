@@ -11,11 +11,11 @@ responds to a HELLO request with a valid replica identity.
 """
 from common import HOST, NUM_REPLICAS, send_message
 
-context = [0, 0, 0]
+context = [0 for i in range(NUM_REPLICAS)]
 
 
 def update_context(timestamp):
-    for i in range(3):
+    for i in range(NUM_REPLICAS):
         context[i] = max(context[i], timestamp[i])
 
 
