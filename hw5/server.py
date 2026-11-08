@@ -114,8 +114,10 @@ class CausalServer:
         This function is called while 'condition' is held.
         """
 
+        print(f"[R{self.replica_id}]: applying update, my clock: {self.vector_clock}, my data: {self.data}, message context: {update['timestamp']}")
         self.data += update['value']
         self.vector_clock[update['origin']] = update['timestamp'][update['origin']]
+        print(f"[R{self.replica_id}]: applied update, my clock: {self.vector_clock}, my data: {self.data}, message context: {update['timestamp']}")
         self.condition.notify_all()
 
     def check_pending_updates(self):
@@ -153,8 +155,10 @@ class CausalServer:
                 "context": [c0, c1, c2]
             }
         """
+        print(f"[R{self.replica_id}]: handling read, my clock: {self.vector_clock}, my data: {self.data}, message context: {message['context']}")
         with self.condition:
             self.condition.wait_for(lambda: clock_ge(self.vector_clock, message['context']))
+            print(f"[R{self.replica_id}]: handling read, finished waiting, my clock: {self.vector_clock}, my data: {self.data}, message context: {message['context']}")
             return {'status': 'OK', 'value': self.data, 'timestamp': self.vector_clock.copy()}
 
 
@@ -172,12 +176,16 @@ class CausalServer:
             'type': 'UPDATE',
         }
 
+        print(f"[R{self.replica_id}]: handling write, my clock: {self.vector_clock}, my data: {self.data}, message context: {message['context']}")
+
         with self.condition:
             self.condition.wait_for(lambda: clock_ge(self.vector_clock, message['context']))
+            print(f"[R{self.replica_id}]: handling write, finished waiting, my clock: {self.vector_clock}, my data: {self.data}, message context: {message['context']}")
             self.data += message['value']
             update_message['value'] = message['value']
             self.vector_clock[self.replica_id] += 1
             update_message['timestamp'] = self.vector_clock.copy()
+            print(f"[R{self.replica_id}]: handling write, applied write, my clock: {self.vector_clock}, my data: {self.data}, message context: {message['context']}")
 
         """
         The originating replica does not need to wait for a peer UPDATE to
@@ -200,6 +208,7 @@ class CausalServer:
         """
 
         with self.condition:
+            print(f"[R{self.replica_id}]: queuing update, my clock: {self.vector_clock}, my data: {self.data}, message context: {message['timestamp']}")
             self.pending_updates.append(message)
 
         """
