@@ -130,7 +130,7 @@ class CausalServer:
         while applied_update:
             applied_update = False
             for update in self.pending_updates:
-                if self.can_apply_update(update):
+                if self.can_apply_update(update['timestamp'], update['origin']):
                     self.apply_update(update)
                     applied_update = True
 
