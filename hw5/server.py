@@ -186,6 +186,7 @@ class CausalServer:
             self.vector_clock[self.replica_id] += 1
             update_message['timestamp'] = self.vector_clock.copy()
             print(f"[R{self.replica_id}]: handling write, applied write, my clock: {self.vector_clock}, my data: {self.data}, message context: {message['context']}")
+            self.condition.notify_all()
 
         """
         The originating replica does not need to wait for a peer UPDATE to
