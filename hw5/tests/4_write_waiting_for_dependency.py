@@ -1,11 +1,11 @@
 import sys
 sys.path.append('.')
-from persistent_client import PersistentClient
+from persistent_client import PersistentCausalClient
 
 def main():
 
-    client = PersistentClient(5000)
-    client2 = PersistentClient(5000, 5001)
+    client = PersistentCausalClient(5000)
+    client2 = PersistentCausalClient(5000, 5001)
 
     client.write(0, 'A')
     client2.read(0)

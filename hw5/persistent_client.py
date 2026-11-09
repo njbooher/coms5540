@@ -2,9 +2,12 @@ import json
 import socket
 from common import HOST, NUM_REPLICAS
 
-class PersistentClient:
+class PersistentCausalClient:
 
     def __init__(self, *args):
+
+        if len(args) > NUM_REPLICAS:
+            raise ValueError("PersistentCausalClient received too many ports")
 
         # we maintain a clock for all replicas
         self.context = [0 for i in range(NUM_REPLICAS)]
@@ -14,10 +17,10 @@ class PersistentClient:
         self.replica_connections = []
 
         for port in args:
-            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.socket.settimeout(None)
-            self.socket.connect((HOST, port))
-            self.replica_connections.append(self.socket.makefile("rwb"))
+            replica_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            replica_socket.settimeout(None)
+            replica_socket.connect((HOST, port))
+            self.replica_connections.append(replica_socket.makefile("rwb"))
 
     def update_context(self, timestamp):
         for i in range(NUM_REPLICAS):
