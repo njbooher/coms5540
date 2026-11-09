@@ -1,1 +1,0 @@
-ls tests/6_*.py | xargs -n 1 -P 2 python
