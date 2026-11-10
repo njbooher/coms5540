@@ -5,7 +5,7 @@ from common import HOST, NUM_REPLICAS
 class PersistentCausalClient:
 
     def __init__(self, *args):
-
+        """Establish connections to replicas on provided list of ports"""
         if len(args) > NUM_REPLICAS:
             raise ValueError("PersistentCausalClient received too many ports")
 
