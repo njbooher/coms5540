@@ -1,7 +1,5 @@
 import socket
-import sys
 import json
-import argparse
 
 from common import (
     HOST,
@@ -10,7 +8,7 @@ from common import (
     send_json_line,
 )
 
-from server import CausalServer
+from server import main, CausalServer
 
 class PersistentCausalServer(CausalServer):
 
@@ -84,23 +82,5 @@ class PersistentCausalServer(CausalServer):
                             f"{type(exc).__name__}: {exc}"
                             )
 
-def main():
-    parser = argparse.ArgumentParser(
-                        prog='server.py',
-                        description='Server providing causal-consistency')
-    parser.add_argument('replica_id', type=int, choices=range(NUM_REPLICAS))
-    parser.add_argument('replica_port', type=int, nargs=NUM_REPLICAS)
-    args = parser.parse_args()
-
-    try:
-        if (any(not 1 <= p <= 65535 for p in args.replica_port) or len(set(args.replica_port)) < NUM_REPLICAS):
-            raise ValueError("Ports must be distinct integers between 1 and 65535")
-    except ValueError as exc:
-        print(f"Invalid arguments: {exc}")
-        sys.exit(1)
-
-    server = PersistentCausalServer(args.replica_id, args.replica_port)
-    server.run_server()
-
 if __name__ == "__main__":
-    main()
+    main(PersistentCausalServer)

@@ -320,7 +320,7 @@ class CausalServer:
                 thread.start()
 
 
-def main():
+def main(server_class=CausalServer):
     parser = argparse.ArgumentParser(
                         prog='server.py',
                         description='Server providing causal-consistency')
@@ -335,7 +335,7 @@ def main():
         print(f"Invalid arguments: {exc}")
         sys.exit(1)
 
-    server = CausalServer(args.replica_id, args.replica_port)
+    server = server_class(args.replica_id, args.replica_port)
     server.run_server()
 
 if __name__ == "__main__":
