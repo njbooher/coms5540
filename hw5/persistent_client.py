@@ -29,8 +29,6 @@ class PersistentCausalClient:
     def send_message(self, replica, message):
         """Send one JSON request and return one JSON response."""
 
-        line = ""
-        #with self.socket.makefile("rwb") as stream:
         payload = (json.dumps(message) + "\n").encode("utf-8")
         self.replica_connections[replica].write(payload)
         self.replica_connections[replica].flush()

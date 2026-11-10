@@ -31,7 +31,6 @@ class PersistentCausalServer(CausalServer):
                 repl_socket.connect((HOST, self.ports[peer_id]))
                 self.replica_connections[peer_id] = repl_socket.makefile("rwb")
 
-            line = ""
             payload = (json.dumps(update) + "\n").encode("utf-8")
             self.replica_connections[peer_id].write(payload)
             self.replica_connections[peer_id].flush()
